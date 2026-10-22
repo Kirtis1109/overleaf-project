@@ -139,7 +139,7 @@ Use $q_k=e^{-4aT_sk^2}$ for every $k$ in \eqref{eq:uniform}. Both series tails t
 
 The corollary bounds order, not conditioning, and does not assert that one set of reduced matrices describes every mesh. The nodal result uses uniformly bounded modal sensor coefficients and positive-time smoothing; it does not assert bounded point evaluation on continuum $L^2$ without smoothing.
 
-\subsection{Constants}
+\subsection{Constants and a fixed-mesh comparison}
 Set $a=0.01$, $T_s=1$, and boundary temperatures in $[0,60]^2\,^\circ$C. Center at $40\,^\circ$C, so $u_t\in[-40,20]^2$ and $U=40\sqrt2$. Outputs are the arithmetic nodal mean and the nodes nearest $z=0.25,0.70$. Set $M=17$ and $r=9$. The auxiliary order is at most eleven.
 
 Table~\ref{tab:bounds} is evaluated using 256-bit Arb arithmetic~\cite{arb}, with finite sums through mode 100 and analytic remainders. For $c=4aT_s$, the forcing tail after $K$ obeys
@@ -157,6 +157,22 @@ $t_0=1$&0.021582&0.009057&0.002123\\
 $t_0=3$&0.005095&0.001930&0.000412\\\bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[t]\centering
+\IfFileExists{figures/uniform_bound.pdf}{%
+\includegraphics[width=\columnwidth]{figures/uniform_bound.pdf}}{%
+\fbox{\parbox[c][3.5cm][c]{0.9\columnwidth}{\centering figures/uniform\_bound.pdf}}}
+\caption{Mesh-uniform residual bound for nine retained modes. Each point covers every mesh $N\ge N_0$. Curves use double-precision evaluation; Table~\ref{tab:bounds} gives interval-enclosed values at selected cutoffs.}\label{fig:uniform}
+\end{figure}
+
+At a fixed mesh, the exact worst-case residual of scalar output $i$ at time $t$ over the initial energy ball and independent input balls is
+\begin{equation}\label{eq:worst}
+\begin{split}
+W_i(t)={}&M\Big(\sum_{k=r+1}^Nc_{ik}^2\lambda_k^{2t}\Big)^{1/2}\\
+&+U\sum_{\ell=1}^{t-1}\Big\|\sum_{k=r+1}^Nc_{ik}\lambda_k^\ell b_k\Big\|_2.
+\end{split}
+\end{equation}
+Indeed, independent linear support functions add for a selected scalar output. At $t=1$ the forced sum is empty. Interval evaluation establishes that $\max_{i,t\ge1}W_i(t)$ is approximately $0.01476867$ at $N=16$ and $0.00167831$ at $N=50$, both attained at $t=1$. For all $t\ge2$, bounding the initial term at $t=2$ and the forced term by its infinite modal majorant gives upper bounds $0.002859$ and $0.000371$, respectively. Thus the uniform bounds exceed these fixed-mesh suprema by approximately $46\%$ and $26\%$. The comparison uses enclosing balls, not the asymmetric physical box or one particular initial profile.
 
 % ======================================================================
 % References cited in the Abstract, Sections I--III, Theorem 1, Corollary 1
