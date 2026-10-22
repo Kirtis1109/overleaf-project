@@ -140,41 +140,6 @@ Use $q_k=e^{-4aT_sk^2}$ for every $k$ in \eqref{eq:uniform}. Both series tails t
 
 The corollary bounds order, not conditioning, and does not assert that one set of reduced matrices describes every mesh. The nodal result uses uniformly bounded modal sensor coefficients and positive-time smoothing; it does not assert bounded point evaluation on continuum $L^2$ without smoothing.
 
-\subsection{Constants and a fixed-mesh comparison}
-Set $a=0.01$, $T_s=1$, and boundary temperatures in $[0,60]^2\,^\circ$C. Center at $40\,^\circ$C, so $u_t\in[-40,20]^2$ and $U=40\sqrt2$. Outputs are the arithmetic nodal mean and the nodes nearest $z=0.25,0.70$. Set $M=17$ and $r=9$. The auxiliary order is at most eleven.
-
-Table~\ref{tab:bounds} is evaluated using 256-bit Arb arithmetic~\cite{arb}, with finite sums through mode 100 and analytic remainders. For $c=4aT_s$, the forcing tail after $K$ obeys
-\[
-\sum_{k>K}\frac{e^{-ck^2}}k\le
-\frac{e^{-c(K+1)^2}}{(K+1)(1-e^{-c(2K+3)})}.
-\]
-The squared initial tail uses the analogous bound with $c$ replaced by $2t_0c$ and without $1/(K+1)$. All displayed upper bounds round upward.
-
-\begin{table}[t]\centering
-\caption{Mesh-uniform output-residual upper bounds ($^\circ$C).}\label{tab:bounds}
-\begin{tabular}{@{}lccc@{}}\toprule
-&$N\ge16$&$N\ge20$&$N\ge50$\\\midrule
-$t_0=1$&0.021582&0.009057&0.002123\\
-$t_0=3$&0.005095&0.001930&0.000412\\\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[t]\centering
-\IfFileExists{figures/uniform_bound.pdf}{%
-\includegraphics[width=\columnwidth]{figures/uniform_bound.pdf}}{%
-\fbox{\parbox[c][3.5cm][c]{0.9\columnwidth}{\centering figures/uniform\_bound.pdf}}}
-\caption{Mesh-uniform residual bound for nine retained modes. Each point covers every mesh $N\ge N_0$. Curves use double-precision evaluation; Table~\ref{tab:bounds} gives interval-enclosed values at selected cutoffs.}\label{fig:uniform}
-\end{figure}
-
-At a fixed mesh, the exact worst-case residual of scalar output $i$ at time $t$ over the initial energy ball and independent input balls is
-\begin{equation}\label{eq:worst}
-\begin{split}
-W_i(t)={}&M\Big(\sum_{k=r+1}^Nc_{ik}^2\lambda_k^{2t}\Big)^{1/2}\\
-&+U\sum_{\ell=1}^{t-1}\Big\|\sum_{k=r+1}^Nc_{ik}\lambda_k^\ell b_k\Big\|_2.
-\end{split}
-\end{equation}
-Indeed, independent linear support functions add for a selected scalar output. At $t=1$ the forced sum is empty. Interval evaluation establishes that $\max_{i,t\ge1}W_i(t)$ is approximately $0.01476867$ at $N=16$ and $0.00167831$ at $N=50$, both attained at $t=1$. For all $t\ge2$, bounding the initial term at $t=2$ and the forced term by its infinite modal majorant gives upper bounds $0.002859$ and $0.000371$, respectively. Thus the uniform bounds exceed these fixed-mesh suprema by approximately $46\%$ and $26\%$. The comparison uses enclosing balls, not the asymmetric physical box or one particular initial profile.
-
 % ======================================================================
 \section{Excitation order and the implemented controller}
 \subsection{What the auxiliary order implies}
@@ -246,7 +211,6 @@ Thus $U_fg=K_u u_p+K_y y_p$, consistent with the established linear form of regu
 \bibitem{zhang} K. Zhang, Y. Zheng, C. Shang, and Z. Li, ``Dimension reduction for efficient data-enabled predictive control,'' \emph{IEEE Control Syst. Lett.}, vol. 7, pp. 3277--3282, 2023.
 \bibitem{alsalti} M. Alsalti, M. Barkey, V. G. Lopez, and M. A. M\"uller, ``Robust and efficient data-driven predictive control,'' \emph{Automatica}, vol. 191, Art. no. 113108, 2026.
 \bibitem{bongard} J. Bongard, J. Berberich, J. K\"ohler, and F. Allg\"ower, ``Robust stability analysis of a simple data-driven model predictive control approach,'' \emph{IEEE Trans. Autom. Control}, vol. 68, no. 5, pp. 2625--2637, 2023.
-\bibitem{arb} F. Johansson, ``Arb: Efficient arbitrary-precision midpoint-radius interval arithmetic,'' \emph{IEEE Trans. Comput.}, vol. 66, no. 8, pp. 1281--1292, 2017.
 \bibitem{huang} L. Huang, J. Zhen, J. Lygeros, and F. D\"orfler, ``Quadratic regularization of data-enabled predictive control: Theory and application to power converter experiments,'' \emph{IFAC-PapersOnLine}, vol. 54, no. 7, pp. 192--197, 2021.
 \bibitem{breschi} V. Breschi, A. Sassella, and S. Formentin, ``On the design of regularized explicit predictive controllers from input-output data,'' \emph{IEEE Trans. Autom. Control}, vol. 68, no. 8, pp. 4977--4983, 2023.
 \end{thebibliography}
