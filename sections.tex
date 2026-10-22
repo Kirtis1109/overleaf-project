@@ -140,30 +140,28 @@ Use $q_k=e^{-4aT_sk^2}$ for every $k$ in \eqref{eq:uniform}. Both series tails t
 
 The corollary bounds order, not conditioning, and does not assert that one set of reduced matrices describes every mesh. The nodal result uses uniformly bounded modal sensor coefficients and positive-time smoothing; it does not assert bounded point evaluation on continuum $L^2$ without smoothing.
 
-\emph{Numerical illustration.} Take $a=0.01$ and $T_s=1$, with boundary temperatures in $[0,60]^2\,^\circ$C centered at $40\,^\circ$C, so $u_t\in[-40,20]^2$ and $U=40\sqrt2$. A rod initially at $23\,^\circ$C gives $M=17$. Outputs are the nodal mean and the nodes nearest $z=0.25,0.70$, and $r=9$, so the auxiliary order is at most eleven. Fig.~\ref{fig:bound_mesh} evaluates \eqref{eq:uniform} with $N_0=N$, so each point holds for every mesh with at least $N$ interior nodes; at $N=16$ and $t_0=1$ the bound is $0.02158\,^\circ$C, and the curve levels off near $1.6\times10^{-3}\,^\circ$C as $N$ grows. At each fixed mesh, the exact worst case of $\max_i|d_{i,t}|$ over $t\ge1$ and over the same initial-energy and input balls lies 24--51\% below the bound. Simulated residuals for twenty uniformly random input sequences from the flat initial profile are a further six to nine times smaller.
+\emph{Numerical illustration.} Take $a=0.01$ and $T_s=1$, with boundary temperatures in $[0,60]^2\,^\circ$C centered at $40\,^\circ$C, so $u_t\in[-40,20]^2$ and $U=40\sqrt2$. A rod initially at $23\,^\circ$C gives $M=17$. Outputs are the nodal mean and the nodes nearest $z=0.25,0.70$, and $r=9$, so the auxiliary order is at most eleven. Fig.~\ref{fig:bound_mesh} evaluates \eqref{eq:uniform} with $N_0=N$, so each point holds for every mesh with at least $N$ interior nodes; at $N=16$ and $t_0=1$ the bound is $0.02158\,^\circ$C, and the curve levels off near $1.6\times10^{-3}\,^\circ$C as $N$ grows. For comparison, the exact worst case of $\max_i|d_{i,t}|$ over $t\ge1$ at each fixed mesh, taken over the same initial-energy and input balls, lies 24--51\% below the bound, so the mesh-uniform estimate is close to the best fixed-mesh value.
 
-Fig.~\ref{fig:bound_r} and Table~\ref{tab:minr} illustrate Corollary~\ref{cor:order} with the mesh-free majorant $q_k=e^{-4aT_sk^2}$. The bound decays faster than geometrically in $r$, so each tenfold reduction of $\delta_*$ costs one or two additional states. The majorant is conservative for low modes: knowing $N\ge16$ and using $\lambda_k(16)$ reduces the $t_0=1$ bound at $r=9$ from $0.636$ to $0.0216\,^\circ$C. All values were computed in 60-digit arithmetic.
+Fig.~\ref{fig:bound_r} and Table~\ref{tab:minr} show how the bound depends on $r$ and on the smallest admissible mesh $N_0$. With $N_0=16$, $r=9$ gives $0.0216\,^\circ$C, and with $N_0=50$ it gives $0.0021\,^\circ$C. The mesh-free majorant $q_k=e^{-4aT_sk^2}$ of Corollary~\ref{cor:order} must also cover coarse meshes $N\ge r$, where the discarded modes decay slowly; it gives $0.636\,^\circ$C at $r=9$ and serves only to establish existence of a mesh-independent order. In every case the bound decays faster than geometrically in $r$. All values were computed in 60-digit arithmetic.
 
 \begin{figure}[t]\centering
 \includegraphics[width=\columnwidth]{figures/bound_vs_mesh.pdf}
-\caption{Output residual for $r=9$. Theorem~\ref{thm:uniform} bounds at $N_0=N$ hold for every mesh with at least $N$ interior nodes. The exact worst case is taken at the single mesh $N$ over all $t\ge1$; simulations use the flat $23\,^\circ$C initial profile and twenty random input sequences on $[-40,20]^2$.}\label{fig:bound_mesh}
+\caption{Output residual for $r=9$ and $t_0=1$. The Theorem~\ref{thm:uniform} bound at $N_0=N$ holds for every mesh with at least $N$ interior nodes; the exact worst case is taken at the single mesh $N$ over all $t\ge1$.}\label{fig:bound_mesh}
 \end{figure}
 
 \begin{figure}[t]\centering
 \includegraphics[width=\columnwidth]{figures/bound_vs_r.pdf}
-\caption{Mesh-uniform bound \eqref{eq:uniform} versus retained modes with $q_k=e^{-4aT_sk^2}$, valid for every mesh $N\ge r$.}\label{fig:bound_r}
+\caption{Mesh-uniform bound \eqref{eq:uniform} versus retained modes for $t_0=1$, for every mesh $N\ge16$, every mesh $N\ge50$, and every mesh $N\ge r$ (mesh-free majorant of Corollary~\ref{cor:order}). The vertical line marks $r=9$.}\label{fig:bound_r}
 \end{figure}
 
 \begin{table}[t]\centering
-\caption{Smallest $r$ with $\bar\delta\le\delta_*$ under the mesh-free majorant, and the resulting auxiliary order bound $r+2$.}\label{tab:minr}
-\begin{tabular}{@{}lcccc@{}}\toprule
-&\multicolumn{2}{c}{$t_0=1$}&\multicolumn{2}{c}{$t_0=3$}\\\cmidrule(lr){2-3}\cmidrule(l){4-5}
-$\delta_*$ ($^\circ$C)&$r$&order&$r$&order\\\midrule
-$10^{-1}$&12&14&10&12\\
-$10^{-2}$&14&16&12&14\\
-$10^{-3}$&16&18&14&16\\
-$10^{-4}$&17&19&16&18\\
-$10^{-6}$&20&22&19&21\\\bottomrule
+\caption{Smallest $r$ with $\bar\delta\le\delta_*$ for $t_0=1$; the auxiliary order is at most $r+2$. A dash means the target is not reached with $r\le N_0$.}\label{tab:minr}
+\begin{tabular}{@{}lccc@{}}\toprule
+$\delta_*$ ($^\circ$C)&$N\ge16$&$N\ge50$&$N\ge r$\\\midrule
+$10^{-1}$&8&7&12\\
+$10^{-2}$&10&9&14\\
+$10^{-3}$&13&10&16\\
+$10^{-4}$&--&11&17\\\bottomrule
 \end{tabular}
 \end{table}
 
