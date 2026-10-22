@@ -1,0 +1,157 @@
+\documentclass[letterpaper,10pt,conference]{ieeeconf}
+\IEEEoverridecommandlockouts
+\overrideIEEEmargins
+\pdfminorversion=4
+\pdfobjcompresslevel=0
+\usepackage{amsmath,amssymb}
+% The supplied class has its own proof environment; use amsthm consistently.
+\let\proof\relax\let\endproof\relax
+\usepackage{amsthm,graphicx,booktabs,cite}
+\usepackage{mathptmx}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Mesh-Independent Auxiliary Order for Data-Driven Predictive Control of Sampled Heat Systems},pdfauthor={Kirti Sharma}}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{remark}\newtheorem{remark}{Remark}
+\title{\LARGE\bf Mesh-Independent Auxiliary Order for Data-Driven Predictive Control of Sampled Heat Systems}
+\input{author}
+\begin{document}
+\maketitle
+\thispagestyle{empty}\pagestyle{empty}
+
+% ======================================================================
+\begin{abstract}
+The sufficient excitation order in Hankel-based predictive control grows with the realization order of a spatially discretized PDE. For the sampled one-dimensional heat equation, we retain slow modes and the newest input response of discarded modes. Weighted modal estimates bound the remaining output residual uniformly over the mesh, including an initial energy ball and persistent bounded inputs. In a thermal example, at most eleven auxiliary states give a residual below $0.021582\,^\circ$C for every mesh with at least sixteen interior nodes. Held-out comparisons show a three-to-four-order improvement over modal truncation, while equal-order balanced truncation is more accurate at fixed meshes. A separate interval test certifies infinite-time input feasibility on 23 of 25 baseline records. After a warm-up sensitivity study, a longer warm-up is frozen and both the auxiliary and full-model tests certify all 25 additional records. These are record-specific nominal-model guarantees; mesh-uniform closed-loop stability is not established.
+\end{abstract}
+
+% ======================================================================
+\section{Introduction}
+Trajectory-based predictive control can use measured input-output data directly as a predictor~\cite{willems,deepc}. Its standard sufficient excitation condition depends on the system order. For a discretized partial differential equation (PDE), that order increases with spatial resolution, even when newly resolved modes retain little memory between samples. This raises a concrete question: can one replace the full discretization by a fixed-order auxiliary behavior while bounding the resulting output error uniformly over the mesh?
+
+We address this question for the sampled one-dimensional heat equation with boundary actuation. The fast modes are represented by their most recent input response; older input effects and the initial transient form an output residual. Unlike simply discarding the fast modes, this retains the leading forced response without increasing the number of slow dynamical modes.
+
+Fast-mode reduction and singular perturbation are classical~\cite{phillips,fernando,liljegren}. Certified infinite-dimensional reduction is also established: balanced realizations and truncation error bounds are available~\cite{glover,guiver}, including analytic-semigroup and boundary-controlled heat examples. Finite-dimensional heat controllers with Dirichlet actuation and point sensing have constructive stability conditions~\cite{katz}. Thus neither low-order PDE approximation nor finite-dimensional heat stabilization is claimed as new here.
+
+The specific contribution is a directly evaluable, mesh-family estimate for the latest-input auxiliary realization: a pointwise sampled output residual covers both initial weighted energy and persistent uniformly bounded inputs without a Gramian solve. This enables a constructive approximation-order bound and a smaller model in the record-specific certificate. The elementary fast recursion and inactive-inequality linear controller law are supporting structure. SVD compression~\cite{zhang} changes the trajectory representation, while efficient behavioral predictors~\cite{alsalti} remove horizon dependence from their data requirements; our approximation instead controls mesh dependence. These methods are complementary. Fixed-mesh accuracy superiority over balanced truncation is explicitly not claimed.
+
+There are two distinct guarantees. First, the approximation bound and auxiliary-order bound hold uniformly over infinitely many meshes. Second, an interval certificate verifies input feasibility and output boundedness for a fixed controller and a fixed nominal plant. Existing robust data-driven MPC theory~\cite{bongard} motivates treating the residual as bounded output perturbation, but its horizon and noise thresholds are not evaluated here. A mesh-uniform stability theorem is not established.
+
+% ======================================================================
+\section{One-step memory and auxiliary behavior}
+Consider centered sampled dynamics
+\begin{equation}\label{eq:plant}
+x_{t+1}=Ax_t+Bu_t,\qquad \tilde y_t=Cx_t+\varepsilon_t,
+\end{equation}
+with $u_t\in\mathbb R^m$, $y_t\in\mathbb R^p$, and $\|\varepsilon_t\|_\infty\le\bar\varepsilon$. Suppose
+\[
+A=V\operatorname{diag}(\Lambda_1,\Lambda_2)V^\top,
+\quad V^\top V=I,\quad \|\Lambda_2\|_2\le\rho<1,
+\]
+where $\Lambda_1$ contains $r$ retained modes. Define $x_t^i=V_i^\top x_t$, $B_i=V_i^\top B$, and $C_i=CV_i$.
+
+\begin{lemma}\label{lem:memory}
+If $\|u_t\|_2\le U$, then for $t\ge1$,
+\[
+x_t^2=B_2u_{t-1}+\eta_t,
+\]
+\begin{equation}\label{eq:memory}
+\|\eta_t\|_2\le\rho^t\|x_0^2\|_2+
+\frac{\rho(1-\rho^{t-1})}{1-\rho}\|B_2\|_2U.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Expanding the recursion gives
+\[
+\eta_t=\Lambda_2^t x_0^2+
+\sum_{j=0}^{t-2}\Lambda_2^{t-1-j}B_2u_j.
+\]
+The sum is empty at $t=1$. Bounding each input term by $\rho^k\|B_2\|_2U$ and summing for $1\le k\le t-1$ proves \eqref{eq:memory}.
+\end{proof}
+
+Let $D_f=C_2B_2$, $z_0=0$, and $z_{t+1}=u_t$. Then $X_t=(x_t^1,z_t)$ satisfies the exact recursion
+\begin{equation}\label{eq:aux}
+\begin{split}
+X_{t+1}&=A_aX_t+B_au_t,\\
+A_a&=\begin{bmatrix}\Lambda_1&0\\0&0\end{bmatrix},\quad
+B_a=\begin{bmatrix}B_1\\I_m\end{bmatrix},\\
+\tilde y_t&=C_aX_t+d_t+\varepsilon_t,\quad C_a=[C_1\ D_f],
+\end{split}
+\end{equation}
+where $d_t=C_2\eta_t$ for $t\ge1$ and $d_0=C_2x_0^2$. Thus only the output carries the approximation error. The nominal auxiliary output is $y_t^a=C_aX_t$.
+
+The displayed realization has $r+m$ states. If $s=\operatorname{rank}D_f$, project $z_t$ onto an orthonormal basis of the row space of $D_f$ to obtain $r+s$ states. When $(\Lambda_1,B_1,C_1)$ is minimal and $\Lambda_1$ is nonsingular, PBH tests at zero and the retained nonzero eigenvalues establish minimality of this compressed realization. In general its minimal order is at most $r+s$.
+
+% ======================================================================
+\section{Mesh-uniform approximation for the heat equation}
+Let $\partial_t\theta=a\partial_{zz}\theta$ on $(0,1)$, with Dirichlet inputs at both ends. Central differences on $N$ interior nodes give spacing $\Delta x=1/(N+1)$. Exact zero-order-hold sampling with period $T_s>0$ yields eigenvalues
+\begin{equation}\label{eq:eigenvalues}
+\lambda_k(N)=e^{-4aT_s(N+1)^2\sin^2\!\frac{k\pi}{2(N+1)}}
+\le e^{-4aT_sk^2}.
+\end{equation}
+Use the weighted energy norm and modal coordinates
+\begin{align*}
+\|x\|_{\Delta x}^2&=\Delta x\sum_jx_j^2,\quad
+\phi_k(j)=\sqrt2\sin\frac{jk\pi}{N+1},\\
+\xi_k&=\Delta x\sum_j\phi_k(j)x_j,\quad
+\|x\|_{\Delta x}^2=\sum_k\xi_k^2.
+\end{align*}
+This normalization matters: a uniformly bounded temperature profile has Euclidean norm proportional to $\sqrt N$, but bounded weighted energy.
+
+\begin{theorem}\label{thm:uniform}
+Suppose every output is a nodal value or a convex combination of nodal values, $\|x_0\|_{\Delta x}\le M$, and $\|u_t\|_2\le U$. Fix integers $N_0\ge r\ge0$ and $t_0\ge1$. For all $N\ge N_0$ and $t\ge t_0$, retaining the first $r$ modes in \eqref{eq:aux} gives
+\begin{equation}\label{eq:uniform}
+\begin{split}
+\|d_t\|_\infty\le\bar\delta={}&
+\sqrt2M\Big(\sum_{k>r}q_k^{2t_0}\Big)^{1/2}\\
+&+\frac{2\sqrt2U}{\pi}\sum_{k>r}\frac{q_k}{k},
+\end{split}
+\end{equation}
+where $q_k=\lambda_k(N_0)$ for $k\le N_0$ and $q_k=e^{-4aT_sk^2}$ otherwise. The bound is independent of $N$.
+\end{theorem}
+\begin{proof}
+Write $\vartheta_k=k\pi/(N+1)$. Mode $k$ has continuous decay rate $\mu_k=4a(N+1)^2\sin^2(\vartheta_k/2)$ and weighted left-input gain $a\sqrt2(N+1)\sin\vartheta_k$. Exact sampling gives
+\[
+b_{k,L}=\frac{(1-\lambda_k)\cot(\vartheta_k/2)}{\sqrt2(N+1)},\quad
+b_{k,R}=(-1)^{k+1}b_{k,L}.
+\]
+For $b_k=[b_{k,L}\ b_{k,R}]$, $\cot s\le1/s$ implies
+\begin{equation}\label{eq:b_gain}
+\|b_k\|_2\le\frac{2(1-\lambda_k)}{\pi k}.
+\end{equation}
+Every admissible sensor has $|c_{ik}|\le\sqrt2$. Applying the fast recursion mode by mode gives
+\begin{align*}
+|d_{i,t}|\le{}&\sum_{k=r+1}^N|c_{ik}|\lambda_k^t|\xi_{k,0}|\\
+&+U\sum_{k=r+1}^N|c_{ik}|\|b_k\|_2
+\frac{\lambda_k}{1-\lambda_k}.
+\end{align*}
+Cauchy--Schwarz bounds the initial contribution by $\sqrt2M(\sum_{k>r}\lambda_k^{2t_0})^{1/2}$. In the forced contribution, \eqref{eq:b_gain} cancels $1-\lambda_k$, leaving $(2\sqrt2U/\pi)\sum_{k>r}\lambda_k/k$.
+
+For fixed $k\le N_0$, $(N+1)\sin(k\pi/(2(N+1)))$ increases with $N$: writing $s=k\pi/(2(N+1))$, the factor is $(k\pi/2)\sin s/s$, and $\sin s/s$ decreases with $s$. Therefore $\lambda_k(N)\le\lambda_k(N_0)$. For $k>N_0$, use \eqref{eq:eigenvalues}. Extending the finite sums by positive terms proves \eqref{eq:uniform}.
+\end{proof}
+
+\begin{corollary}\label{cor:order}
+For fixed $a,T_s,M,U,t_0$ and every $\delta_*>0$, there exists a finite $r$, independent of $N$, such that every mesh $N\ge r$ admits an auxiliary realization of order at most $r+2$ with $\|d_t\|_\infty\le\delta_*$ for all $t\ge t_0$.
+\end{corollary}
+\begin{proof}
+Use $q_k=e^{-4aT_sk^2}$ for every $k$ in \eqref{eq:uniform}. Both series tails tend to zero as $r\to\infty$; two inputs add at most two delay states.
+\end{proof}
+
+The corollary bounds order, not conditioning, and does not assert that one set of reduced matrices describes every mesh. The nodal result uses uniformly bounded modal sensor coefficients and positive-time smoothing; it does not assert bounded point evaluation on continuum $L^2$ without smoothing.
+
+% ======================================================================
+% References cited in the Abstract, Sections I--III, Theorem 1, Corollary 1
+\begin{thebibliography}{99}
+\bibitem{willems} J. C. Willems, P. Rapisarda, I. Markovsky, and B. L. M. De Moor, ``A note on persistency of excitation,'' \emph{Syst. Control Lett.}, vol. 54, no. 4, pp. 325--329, 2005.
+\bibitem{deepc} J. Coulson, J. Lygeros, and F. D\"orfler, ``Data-enabled predictive control: In the shallows of the DeePC,'' in \emph{Proc. European Control Conf.}, 2019, pp. 307--312.
+\bibitem{phillips} R. G. Phillips, ``Reduced order modelling and control of two-time-scale discrete systems,'' \emph{Int. J. Control}, vol. 31, no. 4, pp. 765--780, 1980.
+\bibitem{fernando} K. V. Fernando and H. Nicholson, ``Singular perturbational approximations for discrete-time balanced systems,'' \emph{IEEE Trans. Autom. Control}, vol. 28, no. 2, pp. 240--242, 1983.
+\bibitem{liljegren} B. Liljegren-Sailer and I. V. Gosea, ``Data-driven and low-rank implementations of balanced singular perturbation approximation,'' \emph{SIAM J. Sci. Comput.}, vol. 46, no. 1, pp. A483--A507, 2024.
+\bibitem{glover} K. Glover, R. F. Curtain, and J. R. Partington, ``Realisation and approximation of linear infinite-dimensional systems with error bounds,'' \emph{SIAM J. Control Optim.}, vol. 26, no. 4, pp. 863--898, 1988.
+\bibitem{guiver} C. Guiver and M. R. Opmeer, ``Bounded real and positive real balanced truncation for infinite-dimensional systems,'' \emph{Math. Control Relat. Fields}, vol. 3, no. 1, pp. 83--119, 2013.
+\bibitem{katz} R. Katz and E. Fridman, ``Finite-dimensional control of the heat equation: Dirichlet actuation and point measurement,'' \emph{Eur. J. Control}, vol. 62, pp. 158--164, 2021.
+\bibitem{zhang} K. Zhang, Y. Zheng, C. Shang, and Z. Li, ``Dimension reduction for efficient data-enabled predictive control,'' \emph{IEEE Control Syst. Lett.}, vol. 7, pp. 3277--3282, 2023.
+\bibitem{alsalti} M. Alsalti, M. Barkey, V. G. Lopez, and M. A. M\"uller, ``Robust and efficient data-driven predictive control,'' \emph{Automatica}, vol. 191, Art. no. 113108, 2026.
+\bibitem{bongard} J. Bongard, J. Berberich, J. K\"ohler, and F. Allg\"ower, ``Robust stability analysis of a simple data-driven model predictive control approach,'' \emph{IEEE Trans. Autom. Control}, vol. 68, no. 5, pp. 2625--2637, 2023.
+\end{thebibliography}
+\end{document}
