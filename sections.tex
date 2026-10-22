@@ -14,6 +14,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}
 \theoremstyle{remark}\newtheorem{remark}{Remark}
+\newcommand{\neff}{n_{\mathrm{eff}}}
 \title{\LARGE\bf Mesh-Independent Auxiliary Order for Data-Driven Predictive Control of Sampled Heat Systems}
 \input{author}
 \begin{document}
@@ -175,7 +176,48 @@ W_i(t)={}&M\Big(\sum_{k=r+1}^Nc_{ik}^2\lambda_k^{2t}\Big)^{1/2}\\
 Indeed, independent linear support functions add for a selected scalar output. At $t=1$ the forced sum is empty. Interval evaluation establishes that $\max_{i,t\ge1}W_i(t)$ is approximately $0.01476867$ at $N=16$ and $0.00167831$ at $N=50$, both attained at $t=1$. For all $t\ge2$, bounding the initial term at $t=2$ and the forced term by its infinite modal majorant gives upper bounds $0.002859$ and $0.000371$, respectively. Thus the uniform bounds exceed these fixed-mesh suprema by approximately $46\%$ and $26\%$. The comparison uses enclosing balls, not the asymmetric physical box or one particular initial profile.
 
 % ======================================================================
-% References cited in the Abstract, Sections I--III, Theorem 1, Corollary 1
+\section{Excitation order and the implemented controller}
+\subsection{What the auxiliary order implies}
+For a minimal controllable realization of order $n_c$, the Fundamental Lemma gives a sufficient excitation order $q=L+h+n_c$ for length-$(L+h)$ trajectories~\cite{willems}. A record of $T$ input samples must satisfy
+\begin{equation}\label{eq:pe}
+\operatorname{rank}H_q(u^d)=mq,\qquad T\ge(m+1)q-1.
+\end{equation}
+The length inequality is a dimensional floor for this sufficient rank condition; it alone does not establish excitation or good conditioning.
+
+With $m=2$, $L=10$, $h=8$, and $\neff\le11$, order 29 suffices for the auxiliary behavior and the corresponding floor is 86 samples. The full 50-state realization gives order 68 and floor 203 for the same trajectory length. This is an order comparison: an eight-step history of three outputs cannot reconstruct fifty observable states since $ph=24<50$. To reconstruct auxiliary states, $h$ must be at least its lag. Choosing $h=11$ is sufficient for any observable realization of order at most eleven, giving a mesh-independent floor of 95 samples. The fixed-record certificate below does not require a uniform lag or an invocation of the Fundamental Lemma.
+
+If every offline and online residual is bounded, \eqref{eq:aux} writes the data as auxiliary outputs plus perturbations bounded by $\bar\varepsilon+\bar\delta$. This can support robust MPC results such as~\cite[Thm.~2]{bongard} only when their complete hypotheses and controller formulation hold. In particular, sufficient horizon, noise, and initial-region conditions do not follow from a small auxiliary order. For zero offline initial state and zero delay, $d_0=0$; other initializations require an additional initial residual bound.
+
+\subsection{Specified regularized QP}
+Partition the depth-$(h+L)$ input and measured-output Hankel matrices into $U_p,U_f,Y_p,Y_f$. Set $R_L=I_L\otimes R$ and $Q_L=I_L\otimes Q$, with positive definite $R,Q$. For histories $u_p,y_p$, solve
+\begin{equation}\label{eq:qp}
+\begin{split}
+\min_{g,\bar y_f,\sigma}\quad&
+\|U_fg\|_{R_L}^2+\|\bar y_f\|_{Q_L}^2
++\alpha\|g\|_2^2+\beta\|\sigma\|_2^2\\
+\mathrm{s.t.}\quad& U_pg=u_p,\\
+&\begin{bmatrix}Y_p\\Y_f\end{bmatrix}g
+=\begin{bmatrix}y_p\\\bar y_f\end{bmatrix}+\sigma,\\
+&-40\mathbf1\le U_fg\le20\mathbf1,
+\end{split}
+\end{equation}
+and apply the first two entries of the planned input. This formulation optimizes both past and future output slacks.
+
+Without input inequalities, eliminating the outputs and slacks gives Hessian
+\begin{align*}
+W_f&=(Q_L^{-1}+\beta^{-1}I)^{-1},\\
+H&=\alpha I+U_f^\top R_LU_f+\beta Y_p^\top Y_p+Y_f^\top W_fY_f.
+\end{align*}
+For $\alpha>0$ and full row rank of $U_p$, the KKT matrix is nonsingular:
+\begin{equation}\label{eq:kkt}
+\begin{bmatrix}H&U_p^\top\\U_p&0\end{bmatrix}
+\begin{bmatrix}g\\\lambda\end{bmatrix}
+=\begin{bmatrix}\beta Y_p^\top y_p\\u_p\end{bmatrix}.
+\end{equation}
+Thus $U_fg=K_u u_p+K_y y_p$, consistent with the established linear form of regularized DeePC and explicit data-driven control~\cite{huang,breschi}. If the plan satisfies the inequalities, it is also the unique constrained optimizer. The certificate encloses this exact data-dependent law rather than trusting a rounded numerical gain.
+
+% ======================================================================
+% References cited in the Abstract and Sections I--IV
 \begin{thebibliography}{99}
 \bibitem{willems} J. C. Willems, P. Rapisarda, I. Markovsky, and B. L. M. De Moor, ``A note on persistency of excitation,'' \emph{Syst. Control Lett.}, vol. 54, no. 4, pp. 325--329, 2005.
 \bibitem{deepc} J. Coulson, J. Lygeros, and F. D\"orfler, ``Data-enabled predictive control: In the shallows of the DeePC,'' in \emph{Proc. European Control Conf.}, 2019, pp. 307--312.
@@ -189,5 +231,7 @@ Indeed, independent linear support functions add for a selected scalar output. A
 \bibitem{alsalti} M. Alsalti, M. Barkey, V. G. Lopez, and M. A. M\"uller, ``Robust and efficient data-driven predictive control,'' \emph{Automatica}, vol. 191, Art. no. 113108, 2026.
 \bibitem{bongard} J. Bongard, J. Berberich, J. K\"ohler, and F. Allg\"ower, ``Robust stability analysis of a simple data-driven model predictive control approach,'' \emph{IEEE Trans. Autom. Control}, vol. 68, no. 5, pp. 2625--2637, 2023.
 \bibitem{arb} F. Johansson, ``Arb: Efficient arbitrary-precision midpoint-radius interval arithmetic,'' \emph{IEEE Trans. Comput.}, vol. 66, no. 8, pp. 1281--1292, 2017.
+\bibitem{huang} L. Huang, J. Zhen, J. Lygeros, and F. D\"orfler, ``Quadratic regularization of data-enabled predictive control: Theory and application to power converter experiments,'' \emph{IFAC-PapersOnLine}, vol. 54, no. 7, pp. 192--197, 2021.
+\bibitem{breschi} V. Breschi, A. Sassella, and S. Formentin, ``On the design of regularized explicit predictive controllers from input-output data,'' \emph{IEEE Trans. Autom. Control}, vol. 68, no. 8, pp. 4977--4983, 2023.
 \end{thebibliography}
 \end{document}
