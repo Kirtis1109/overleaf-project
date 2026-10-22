@@ -140,6 +140,33 @@ Use $q_k=e^{-4aT_sk^2}$ for every $k$ in \eqref{eq:uniform}. Both series tails t
 
 The corollary bounds order, not conditioning, and does not assert that one set of reduced matrices describes every mesh. The nodal result uses uniformly bounded modal sensor coefficients and positive-time smoothing; it does not assert bounded point evaluation on continuum $L^2$ without smoothing.
 
+\emph{Numerical illustration.} Take $a=0.01$ and $T_s=1$, with boundary temperatures in $[0,60]^2\,^\circ$C centered at $40\,^\circ$C, so $u_t\in[-40,20]^2$ and $U=40\sqrt2$. A rod initially at $23\,^\circ$C gives $M=17$. Outputs are the nodal mean and the nodes nearest $z=0.25,0.70$, and $r=9$, so the auxiliary order is at most eleven. Fig.~\ref{fig:bound_mesh} evaluates \eqref{eq:uniform} with $N_0=N$, so each point holds for every mesh with at least $N$ interior nodes; at $N=16$ and $t_0=1$ the bound is $0.02158\,^\circ$C, and the curve levels off near $1.6\times10^{-3}\,^\circ$C as $N$ grows. At each fixed mesh, the exact worst case of $\max_i|d_{i,t}|$ over $t\ge1$ and over the same initial-energy and input balls lies 24--51\% below the bound. Simulated residuals for twenty uniformly random input sequences from the flat initial profile are a further six to nine times smaller.
+
+Fig.~\ref{fig:bound_r} and Table~\ref{tab:minr} illustrate Corollary~\ref{cor:order} with the mesh-free majorant $q_k=e^{-4aT_sk^2}$. The bound decays faster than geometrically in $r$, so each tenfold reduction of $\delta_*$ costs one or two additional states. The majorant is conservative for low modes: knowing $N\ge16$ and using $\lambda_k(16)$ reduces the $t_0=1$ bound at $r=9$ from $0.636$ to $0.0216\,^\circ$C. All values were computed in 60-digit arithmetic.
+
+\begin{figure}[t]\centering
+\includegraphics[width=\columnwidth]{figures/bound_vs_mesh.pdf}
+\caption{Output residual for $r=9$. Theorem~\ref{thm:uniform} bounds at $N_0=N$ hold for every mesh with at least $N$ interior nodes. The exact worst case is taken at the single mesh $N$ over all $t\ge1$; simulations use the flat $23\,^\circ$C initial profile and twenty random input sequences on $[-40,20]^2$.}\label{fig:bound_mesh}
+\end{figure}
+
+\begin{figure}[t]\centering
+\includegraphics[width=\columnwidth]{figures/bound_vs_r.pdf}
+\caption{Mesh-uniform bound \eqref{eq:uniform} versus retained modes with $q_k=e^{-4aT_sk^2}$, valid for every mesh $N\ge r$.}\label{fig:bound_r}
+\end{figure}
+
+\begin{table}[t]\centering
+\caption{Smallest $r$ with $\bar\delta\le\delta_*$ under the mesh-free majorant, and the resulting auxiliary order bound $r+2$.}\label{tab:minr}
+\begin{tabular}{@{}lcccc@{}}\toprule
+&\multicolumn{2}{c}{$t_0=1$}&\multicolumn{2}{c}{$t_0=3$}\\\cmidrule(lr){2-3}\cmidrule(l){4-5}
+$\delta_*$ ($^\circ$C)&$r$&order&$r$&order\\\midrule
+$10^{-1}$&12&14&10&12\\
+$10^{-2}$&14&16&12&14\\
+$10^{-3}$&16&18&14&16\\
+$10^{-4}$&17&19&16&18\\
+$10^{-6}$&20&22&19&21\\\bottomrule
+\end{tabular}
+\end{table}
+
 % ======================================================================
 \section{Excitation order and the implemented controller}
 \subsection{What the auxiliary order implies}
@@ -149,9 +176,21 @@ For a minimal controllable realization of order $n_c$, the Fundamental Lemma giv
 \end{equation}
 The length inequality is a dimensional floor for this sufficient rank condition; it alone does not establish excitation or good conditioning.
 
-With $m=2$, $L=10$, $h=8$, and $\neff\le11$, order 29 suffices for the auxiliary behavior and the corresponding floor is 86 samples. The full 50-state realization gives order 68 and floor 203 for the same trajectory length. This is an order comparison: an eight-step history of three outputs cannot reconstruct fifty observable states since $ph=24<50$. To reconstruct auxiliary states, $h$ must be at least its lag. Choosing $h=11$ is sufficient for any observable realization of order at most eleven, giving a mesh-independent floor of 95 samples. The fixed-record certificate below does not require a uniform lag or an invocation of the Fundamental Lemma.
+With $m=2$, $L=10$, $h=8$, and $\neff\le11$, order 29 suffices for the auxiliary behavior and the corresponding floor is 86 samples. The full 50-state realization gives order 68 and floor 203 for the same trajectory length. Table~\ref{tab:pe} extends this comparison across meshes: the full-model floor grows linearly with $N$, whereas the auxiliary floor is fixed.This is an order comparison: an eight-step history of three outputs cannot reconstruct fifty observable states since $ph=24<50$. To reconstruct auxiliary states, $h$ must be at least its lag. Choosing $h=11$ is sufficient for any observable realization of order at most eleven, giving a mesh-independent floor of 95 samples. The fixed-record certificate below does not require a uniform lag or an invocation of the Fundamental Lemma.
 
 If every offline and online residual is bounded, \eqref{eq:aux} writes the data as auxiliary outputs plus perturbations bounded by $\bar\varepsilon+\bar\delta$. This can support robust MPC results such as~\cite[Thm.~2]{bongard} only when their complete hypotheses and controller formulation hold. In particular, sufficient horizon, noise, and initial-region conditions do not follow from a small auxiliary order. For zero offline initial state and zero delay, $d_0=0$; other initializations require an additional initial residual bound.
+
+\begin{table}[t]\centering
+\caption{Sufficient excitation order $q=L+h+n$ and record-length floor $(m+1)q-1$ from \eqref{eq:pe} for $m=2$, $L=10$, $h=8$.}\label{tab:pe}
+\begin{tabular}{@{}rcccc@{}}\toprule
+&\multicolumn{2}{c}{Full model ($n=N$)}&\multicolumn{2}{c}{Auxiliary ($\neff\le11$)}\\\cmidrule(lr){2-3}\cmidrule(l){4-5}
+$N$&$q$&$T$ floor&$q$&$T$ floor\\\midrule
+16&34&101&29&86\\
+50&68&203&29&86\\
+100&118&353&29&86\\
+200&218&653&29&86\\\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Specified regularized QP}
 Partition the depth-$(h+L)$ input and measured-output Hankel matrices into $U_p,U_f,Y_p,Y_f$. Set $R_L=I_L\otimes R$ and $Q_L=I_L\otimes Q$, with positive definite $R,Q$. For histories $u_p,y_p$, solve
